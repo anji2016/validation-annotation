@@ -1,36 +1,34 @@
 package com.validation.validator;
 
+import java.util.List;
+
 import com.validation.annotation.ValidUser;
 import com.validation.dto.UserDTO;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+public class UserValidator extends BaseValidator<UserDTO, ValidUser> {
 
-public class UserValidator implements ConstraintValidator<ValidUser, UserDTO>{
-	
-	 @Override
-	    public boolean isValid(UserDTO user, ConstraintValidatorContext context) {
-	        boolean isValid = true;
-	        
-	        if (!user.getName().matches("^[A-Za-z ]+$")) {
-	            context.buildConstraintViolationWithTemplate("Name must contain only alphabets and spaces")
-	                    .addPropertyNode("name").addConstraintViolation();
-	            isValid = false;
-	        }
-	        
-	        if (!user.getEmail().matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$") ) {
-	            context.buildConstraintViolationWithTemplate("Invalid email format")
-	                    .addPropertyNode("email").addConstraintViolation();
-	            isValid = false;
-	        }
-	        
-	        if (!user.getPassword().matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{6,}$")) {
-	            context.buildConstraintViolationWithTemplate("Password must be at least 6 characters long and contain one uppercase letter, one digit, and one special character")
-	                    .addPropertyNode("password").addConstraintViolation();
-	            isValid = false;
-	        }
-	        
-	        return isValid;
-	    }
+	@Override
+	protected List<ValidationRule> getValidationRules(UserDTO user) {
+		return List.of(
+				new ValidationRule("name", user.getName(), "Name must contain only alphabets and spaces",
+						this::isValidName),
 
+				new ValidationRule("email", user.getEmail(), "Invalid email format", this::isValidEmail),
+
+				new ValidationRule("password", user.getPassword(),
+						"Password must be at least 6 characters long and contain one uppercase letter, one digit, and one special character",
+						this::isValidPassword));
+	}
+
+	public boolean isValidName(String value) {
+		return value != null && value.matches("^[A-Za-z ]+$");
+	}
+
+	public boolean isValidEmail(String value) {
+		return value != null && value.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+	}
+
+	public boolean isValidPassword(String value) {
+		return value != null && value.matches("^(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{6,}$");
+	}
 }

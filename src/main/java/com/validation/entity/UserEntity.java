@@ -1,12 +1,20 @@
-package com.validation.dto;
+package com.validation.entity;
 
-import com.validation.annotation.ValidUser;
-
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-@ValidUser
-public class UserDTO {
+@Entity
+@Table(name="users")
+public class UserEntity {
+	
+	@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  
+    private Long id; 
 
 	@NotBlank(message = "Name is required")
 	@NotNull(message = "Name cannot be null")
@@ -17,22 +25,6 @@ public class UserDTO {
 
 	@NotBlank(message = "Password is required")
 	private String password;
-
-	/*
-	 * @Valid private List<AddressDTO> addresses;
-	 */
-
-	/*
-	 * // Constructors, Getters, Setters public UserDTO(String name, String email,
-	 * String password, List<AddressDTO> addresses) { this.name = name; this.email =
-	 * email; this.password = password; this.addresses = addresses; }
-	 */
-	
-	public UserDTO(String name, String email, String password) {
-		this.name = name;
-		this.email = email;
-		this.password = password;
-	}
 
 	public String getName() {
 		return name;
@@ -49,5 +41,14 @@ public class UserDTO {
 	/*
 	 * public List<AddressDTO> getAddresses() { return addresses; }
 	 */
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 	
+
 }
