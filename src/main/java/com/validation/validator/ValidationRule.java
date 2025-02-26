@@ -2,28 +2,40 @@ package com.validation.validator;
 
 import java.util.function.Predicate;
 
-public class ValidationRule {
-    private final String field;
-    private final String value;
-    private final String message;
-    private final Predicate<String> predicate;
+import com.validation.enums.Type;
 
-    public ValidationRule(String field, String value, String message, Predicate<String> predicate) {
-        this.field = field;
-        this.value = value;
-        this.message = message;
-        this.predicate = predicate;
-    }
-    
-    public boolean isInvalid() {
-        return value == null || !predicate.test(value);
-    }
+public class ValidationRule<T> {
+	private final String field;
+	private final T value;
+	private final String message;
+	private final Predicate<T> predicate;
+	private Type type;
+
+	public ValidationRule(String field, T value, String message, Predicate<T> predicate) {
+		this.field = field;
+		this.value = value;
+		this.message = message;
+		this.predicate = predicate;
+		this.type = Type.ERROR;
+	}
+
+	public ValidationRule(String field, T value, String message, Predicate<T> predicate, Type type) {
+		this.field = field;
+		this.value = value;
+		this.message = message;
+		this.predicate = predicate;
+		this.type = type;
+	}
+
+	public boolean isInvalid() {
+		return value == null || !predicate.test(value);
+	}
 
 	public String getField() {
 		return field;
 	}
 
-	public String getValue() {
+	public T getValue() {
 		return value;
 	}
 
@@ -31,8 +43,16 @@ public class ValidationRule {
 		return message;
 	}
 
-	public Predicate<String> getPredicate() {
+	public Predicate<T> getPredicate() {
 		return predicate;
 	}
-    
+
+	public Type getType() {
+		return type;
+	}
+
+	public void setType(Type type) {
+		this.type = type;
+	}
+
 }

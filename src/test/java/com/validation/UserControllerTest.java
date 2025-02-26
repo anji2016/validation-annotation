@@ -22,13 +22,9 @@ public class UserControllerTest {
 
 	private MockMvc mockMvc;
 
-	/*
-	 * @MockBean private UserValidator userValidator; // Mock Service to avoid real
-	 * DB calls
-	 */
 
 	@Test
-	void testRegisterUser_InvalidInput() throws Exception {
+	void testRegisterUser_ValidInput() throws Exception {
 		// Initialize MockMvc manually
 		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
 		mockMvc.getDispatcherServlet().setEnableLoggingRequestDetails(true);
@@ -44,6 +40,20 @@ public class UserControllerTest {
 				.andDo(print());
 	}
 	
-	
+	@Test
+	void testRegisterUser_InvalidInput() throws Exception {
+		// Initialize MockMvc manually
+		mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+		mockMvc.getDispatcherServlet().setEnableLoggingRequestDetails(true);
 
+		// Given - Invalid UserDTO
+		UserDTO userDTO = new UserDTO("abcd", "", "Passw@1");
+
+		// When & Then
+		mockMvc.perform(post("/users/register")
+				.content(new ObjectMapper().writeValueAsString(userDTO))
+				.contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+				.andExpect(status().isBadRequest())
+				.andDo(print());
+	}
 }
