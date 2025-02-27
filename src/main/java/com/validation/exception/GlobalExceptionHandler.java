@@ -1,49 +1,46 @@
 package com.validation.exception;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.validation.dto.ValidationError;
 import com.validation.enums.Type;
-import com.validation.validator.BaseValidator;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<ValidationError>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<Map.Entry<String, Type>, ValidationError> errorMap = new HashMap<>();
+    public ResponseEntity<List<ValidationError>> handleValidationException(MethodArgumentNotValidException ex) {
 
-        // Process @NotNull and other Jakarta validation errors
-        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
-            Map.Entry<String, Type> key = Map.entry(error.getField(), Type.ERROR); // Always ERROR type for Jakarta validations
+        Map<String, Map<Type, List<String>>> errorMap = new LinkedHashMap<>();
 
-            errorMap.computeIfAbsent(key, k -> new ValidationError(k.getKey(), k.getValue()))
-                    .getMessages().add(error.getDefaultMessage());
-        }
+        // Extract messages and group them by field and type
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            String[] parts = error.getDefaultMessage().split("\\|", 2); // Extract message and errorType
+            String message = parts[0].trim();
+            Type errorType = parts.length > 1 ? Type.valueOf(parts[1].trim()) : Type.ERROR; // Default to ERROR
 
-        // Fetch custom validation errors from BaseValidator
-        List<ValidationError> customErrors = BaseValidator.getValidationErrors();
-        for (ValidationError customError : customErrors) {
-            Map.Entry<String, Type> key = Map.entry(customError.getField(), customError.getType());
+            errorMap
+                .computeIfAbsent(error.getField(), key -> new LinkedHashMap<>())
+                .computeIfAbsent(errorType, key -> new ArrayList<>())
+                .add(message);
+        });
 
-            errorMap.computeIfAbsent(key, k -> new ValidationError(k.getKey(), k.getValue()))
-                    .getMessages().addAll(customError.getMessages());
-        }
+        // Convert to response format
+        List<ValidationError> validationErrors = errorMap.entrySet()
+            .stream()
+            .flatMap(entry -> entry.getValue().entrySet().stream()
+                .map(typeEntry -> new ValidationError(entry.getKey(), typeEntry.getValue(), typeEntry.getKey())))
+            .toList();
 
-        // Clear stored errors to prevent memory leaks
-        BaseValidator.clearErrors();
-
-        return new ResponseEntity<>(new ArrayList<>(errorMap.values()), HttpStatus.BAD_REQUEST);
+        return ResponseEntity.badRequest().body(validationErrors);
     }
 }
 

@@ -9,7 +9,7 @@ import com.validation.enums.Type;
 public class UserValidator extends BaseValidator<UserDTO, ValidUser> {
 
 	@Override
-	protected List<ValidationRule<?>> getValidationRules(UserDTO user) {
+	protected List<ValidationRule> getValidationRules(UserDTO user) {
 		return List.of(
 				new ValidationRule<>("name", user.getName(), "Name must contain only alphabets and spaces",
 						this::isValidName, Type.WARN),
@@ -27,7 +27,7 @@ public class UserValidator extends BaseValidator<UserDTO, ValidUser> {
 	}
 
 	public boolean isValidName(String value) {
-		return value != null && value.matches("^[A-Za-z ]+$");
+		return value != null && !value.matches("^[A-Za-z ]+$");
 	}
 
 	public boolean isErrName(String value) {

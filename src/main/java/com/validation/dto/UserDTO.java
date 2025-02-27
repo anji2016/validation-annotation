@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @ValidUser
-public class UserDTO {
+public class UserDTO{
 
 	@NotBlank(message = "Name is required")
 	@NotNull(message = "Name cannot be null")
@@ -45,9 +45,12 @@ public class UserDTO {
 	public String getPassword() {
 		return password;
 	}
+	
 
 	/*
 	 * public List<AddressDTO> getAddresses() { return addresses; }
 	 */
+	
+	
 	
 }
