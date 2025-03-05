@@ -11,12 +11,12 @@ public class UserValidator extends BaseValidator<UserDTO, ValidUser> {
 	@Override
 	protected List<ValidationRule> getValidationRules(UserDTO user) {
 		return List.of(
-				new ValidationRule<>("name", user.getName(), "Name must contain only alphabets and spaces",
+				new ValidationRule<>(MethodNameUtil.getFieldNameFromGetter(UserDTO::getName), user.getName(), "Name must contain only alphabets and spaces",
 						this::isValidName, Type.WARN),
-				new ValidationRule<>("name", user.getName(), "Name must not contain priya word", this::isErrName,
+				new ValidationRule<>(MethodNameUtil.getFieldNameFromGetter(UserDTO::getName), user.getName(), "Name must not contain priya word", this::isErrName,
 						Type.ERROR),
-				new ValidationRule<>("email", user.getEmail(), "Invalid email format", this::isValidEmail, Type.ERROR),
-				new ValidationRule<>("email", user.getEmail(), "It is an Error Email", this::isErrEmail, Type.WARN),
+				new ValidationRule<>(MethodNameUtil.getFieldNameFromGetter(UserDTO::getEmail), user.getEmail(), "Invalid email format", this::isValidEmail, Type.ERROR),
+				new ValidationRule<>(MethodNameUtil.getFieldNameFromGetter(UserDTO::getEmail), user.getEmail(), "It is an Error Email", this::isErrEmail, Type.WARN),
 				new ValidationRule<>("password", user.getPassword(), "Password should contain pass",
 						this::isErrorPassword, Type.WARN),
 				new ValidationRule<>("password", user.getPassword(), "Password should contain password",
